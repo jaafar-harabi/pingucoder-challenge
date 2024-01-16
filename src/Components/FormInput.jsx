@@ -1,0 +1,56 @@
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import { Card, CardBody, Input, Button } from "@material-tailwind/react";
+import toast, { Toaster } from 'react-hot-toast';
+import {createItem} from '../API/api'
+
+const FormInput = () => {
+  const formik = useFormik({
+    initialValues: {
+      name: '',
+      email: '',
+      age: '',
+    },
+    validationSchema: Yup.object({
+      name: Yup.string().required('Name is required'),
+      email: Yup.string().email('Invalid email address').required('Email is required'),
+      age: Yup.number().required("Please supply your age").min(18, "You must be at least 18 years").max(100, "You must be at most 100 years"),
+    }),
+    onSubmit: (values) => {
+    
+      createItem({...values})
+      toast.success("Data Add it");
+      formik.resetForm();
+    },
+  });
+
+  return (
+    <Card className="w-96 mb-10 bg-blue-gray-100 mx-auto mt-36 ">
+      <Toaster position='top-right' toastOptions={{ className: 'mt-20' }} />
+      <CardBody>
+        <form className='flex flex-col gap-4' onSubmit={formik.handleSubmit}>
+          <Input label='Name' name='name' value={formik.values.name} onChange={formik.handleChange} />
+          {formik.touched.name && formik.errors.name && (
+            <div className="text-black">{formik.errors.name}</div>
+          )}
+
+          <Input label='Email' name='email' value={formik.values.email} onChange={formik.handleChange} />
+          {formik.touched.email && formik.errors.email && (
+            <div className="text-black">{formik.errors.email}</div>
+          )}
+
+          <Input label='Age' name='age' value={formik.values.age} onChange={formik.handleChange} />
+          {formik.touched.age && formik.errors.age && (
+            <div className="text-black">{formik.errors.age}</div>
+          )}
+
+          <Button type="submit" variant="gradient" fullWidth className="mt-5" disabled={formik.isSubmitting}>
+            {formik.isSubmitting ? 'Submitting...' : 'Submit'}
+          </Button>
+        </form>
+      </CardBody>
+    </Card>
+  );
+};
+
+export default FormInput;
